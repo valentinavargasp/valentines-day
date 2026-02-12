@@ -4,6 +4,82 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { motion } from "framer-motion"
 
+// Sonidos retro (Web Audio API, sintéticos)
+function getAudioContext() {
+  if (typeof window === "undefined") return null
+  if (!window.__retroTerminalAudioContext) {
+    window.__retroTerminalAudioContext = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  return window.__retroTerminalAudioContext
+}
+
+function playKeyClick() {
+  const ctx = getAudioContext()
+  if (!ctx) return
+  if (ctx.state === "suspended") ctx.resume()
+  const now = ctx.currentTime
+  const dur = 0.025
+  const bufSize = Math.ceil(ctx.sampleRate * dur)
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate)
+  const d = buf.getChannelData(0)
+  for (let i = 0; i < bufSize; i++) {
+    d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.2))
+  }
+  const noise = ctx.createBufferSource()
+  noise.buffer = buf
+  const gn = ctx.createGain()
+  gn.gain.setValueAtTime(0.15, now)
+  gn.gain.exponentialRampToValueAtTime(0.001, now + dur)
+  noise.connect(gn)
+  gn.connect(ctx.destination)
+  noise.start(now)
+  noise.stop(now + dur)
+  const osc = ctx.createOscillator()
+  const go = ctx.createGain()
+  osc.connect(go)
+  go.connect(ctx.destination)
+  osc.type = "sine"
+  osc.frequency.setValueAtTime(2800, now)
+  go.gain.setValueAtTime(0.04, now)
+  go.gain.exponentialRampToValueAtTime(0.001, now + 0.015)
+  osc.start(now)
+  osc.stop(now + 0.015)
+}
+
+function playGlitchSound() {
+  const ctx = getAudioContext()
+  if (!ctx) return
+  if (ctx.state === "suspended") ctx.resume()
+  const now = ctx.currentTime
+  const bufferSize = ctx.sampleRate * 0.15
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3))
+  }
+  const noise = ctx.createBufferSource()
+  noise.buffer = buffer
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.2, now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15)
+  noise.connect(gain)
+  gain.connect(ctx.destination)
+  noise.start(now)
+  noise.stop(now + 0.15)
+  for (let f of [200, 400, 800]) {
+    const osc = ctx.createOscillator()
+    const g = ctx.createGain()
+    osc.connect(g)
+    g.connect(ctx.destination)
+    osc.type = "square"
+    osc.frequency.setValueAtTime(f + (Math.random() * 200 - 100), now)
+    g.gain.setValueAtTime(0.03, now)
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.08)
+    osc.start(now)
+    osc.stop(now + 0.08)
+  }
+}
+
 // Virtual File System
 const FILE_SYSTEM = {
   "/": {
@@ -302,9 +378,10 @@ HERRAMIENTAS DE SEGURIDAD:
   curl -O <url>      Descarga un archivo (ej: curl -O imagen_misteriosa.png)
   wget <url>         Descarga un archivo
   download <archivo> Descarga la imagen para analizarla en tu maquina (ej: download imagen_misteriosa.png)
-
+  start --valentines Muestra un mensaje de San Valentin
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Tip: Empieza explorando con 'ls -la' para ver archivos ocultos.
+     
 `
 
 const BOLSO_IMAGE_URL = "/2.png"
@@ -364,6 +441,7 @@ export default function RetroTerminal({ onClose }) {
 
   useEffect(() => {
     if (hackPhase !== "glitch_fullscreen") return
+    playGlitchSound()
     const chars = "01"
     const interval = setInterval(() => {
       setGlitchFullscreenText(
@@ -524,6 +602,32 @@ export default function RetroTerminal({ onClose }) {
         case "clear":
           setHistory([])
           return
+
+        case "start": {
+          if (args[0] === "--valentines") {
+            setHistory([
+              {
+                type: "output",
+                content: `
+    ***   ***
+   ***** *****
+  ***********
+  ***********
+   *********
+    *******
+     *****
+      ***
+       *
+
+  ¡Feliz San Valentin, mi amor! <3
+`,
+              },
+            ])
+            return
+          }
+          addToHistory(`bash: ${command}: comando no encontrado. Prueba 'start --valentines' ;)`)
+          break
+        }
 
         case "ls": {
           const showHidden = args.includes("-a") || args.includes("-la") || args.includes("-al")
@@ -797,6 +901,10 @@ export default function RetroTerminal({ onClose }) {
     if (e.key === "Enter") {
       processCommand(currentInput)
       setCurrentInput("")
+      return
+    }
+    if ((hackPhase === "idle" || hackPhase === "done") && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      playKeyClick()
     }
   }
 
@@ -852,7 +960,7 @@ export default function RetroTerminal({ onClose }) {
               className="rounded-xl overflow-hidden border-2 border-[#2ecc71]/50 shadow-[0_0_25px_rgba(46,204,113,0.4)] bg-black/80 flex flex-col w-fit max-w-[95vw]"
             >
               <div className="p-5 flex flex-col">
-                <h3 className="text-[#2ecc71] font-bold text-xl mb-3">Equipamiento Docente</h3>
+                <h3 className="text-[#2ecc71] font-bold text-xl mb-3">Regalo agarrá la pala</h3>
                 <div className="rounded-lg overflow-hidden mb-4 border border-[#2ecc71]/30 shadow-[0_0_15px_rgba(46,204,113,0.2)] bg-zinc-900/50 flex items-center justify-center min-h-[220px] min-w-[200px]">
                   <img
                     src={BOLSO_IMAGE_URL}
@@ -862,7 +970,7 @@ export default function RetroTerminal({ onClose }) {
                   />
                 </div>
                 <p className="text-[#2ecc71]/90 text-sm max-w-[280px]">
-                  Tu recgalito <strong className="text-[#2ecc71]">está por llegar</strong>. Portfolio y billetera matcheando, listo para una nueva etapa en nivel superior.
+                  Tu regalito <strong className="text-[#2ecc71]">está por llegar</strong>. Portfolio y billetera matcheando, listo para una nueva etapa en nivel superior.
                 </p>
               </div>
             </motion.div>
@@ -883,7 +991,7 @@ export default function RetroTerminal({ onClose }) {
                   />
                 </div>
                 <p className="text-[#2ecc71]/90 text-sm max-w-[280px]">
-                  Los detalles te los envío a tu <strong className="text-[#2ecc71]">whatsapp</strong>. Noche de cena, spa y alojamiento inspirada en la Toscana en el Hotel Mercure, con casino incluído.
+                  Los detalles te los envío a tu <strong className="text-[#2ecc71]">whatsapp</strong>. Noche de cena, spa y alojamiento inspirada en la Toscana en el Hotel Mercure.
                 </p>
               </div>
             </motion.div>
