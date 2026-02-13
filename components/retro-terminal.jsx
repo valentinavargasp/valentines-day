@@ -911,15 +911,26 @@ export default function RetroTerminal({ onClose }) {
     if (hackPhase === "glitch_fullscreen") {
       return createPortal(
         <div
-          className="fixed inset-0 z-[9998] bg-black overflow-hidden"
-          style={{ top: 0, left: 0, width: "100vw", height: "100vh", minWidth: "100%", minHeight: "100%" }}
+          className="fixed inset-0 bg-black overflow-hidden"
+          style={{
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            display: "block",
+            zIndex: 999999,
+          }}
           aria-hidden
         >
           <pre
-            className="absolute inset-0 w-full h-full font-mono text-[#2ecc71] select-none whitespace-pre-wrap break-all m-0 p-3 box-border"
+            className="font-mono text-[#2ecc71] select-none whitespace-pre-wrap break-all m-0 p-2 absolute inset-0 w-full h-full box-border"
             style={{
-              fontSize: "clamp(6px, 1.2vw, 10px)",
-              lineHeight: 1.1,
+              fontSize: "10px",
+              lineHeight: 1,
+              width: "100%",
+              height: "100%",
               textShadow: "0 0 8px rgba(46, 204, 113, 0.9)",
             }}
           >
@@ -932,8 +943,18 @@ export default function RetroTerminal({ onClose }) {
     if (hackPhase === "blink") {
       return createPortal(
         <div
-          className="fixed inset-0 z-[9999] bg-white"
-          style={{ top: 0, left: 0, width: "100vw", height: "100vh", animation: "flash 200ms ease-out" }}
+          className="fixed inset-0 bg-white"
+          style={{
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            display: "block",
+            zIndex: 999999,
+            animation: "flash 200ms ease-out",
+          }}
           aria-hidden
         />,
         document.body
@@ -941,7 +962,19 @@ export default function RetroTerminal({ onClose }) {
     }
     if (showRewards) {
       return createPortal(
-        <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-6 overflow-y-auto" style={{ top: 0, left: 0, width: "100vw", height: "100vh" }}>
+        <div
+          className="fixed inset-0 bg-black/95 flex flex-col items-center justify-center p-6 overflow-y-auto"
+          style={{
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            display: "block",
+            zIndex: 999999,
+          }}
+        >
           <button
             type="button"
             onClick={() => setShowRewards(false)}
