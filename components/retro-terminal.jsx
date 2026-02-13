@@ -195,14 +195,12 @@ echo "Bienvenido, mi amor <3"`,
     type: "file",
     content: `Hola Sergio!
 
-Si estas leyendo esto, significa que has llegado lejos.
-Pero tu mision aun no termina...
+Si estas leyendo esto, ya descifraste la imagen. Bien hecho!
 
-Tu carpeta 'privado' contiene algo especial.
-Necesitaras la contrasena correcta para acceder.
+Tu carpeta 'privado' tiene lo que buscas.
+Usa la misma contrasena que obtuviste con steghide para entrar (cd privado).
 
-Pista: La contrasena es un recuerdo muy especial...
-      Oh Dago, llegaste a mi vida volandoooo...  ;)
+Oh Dago, llegaste a mi vida volandoooo... <3
 
 Con amor,
 SuperAdmin`,
@@ -1007,10 +1005,10 @@ export default function RetroTerminal({ onClose }) {
     <>
       {fullscreenOverlay}
 
-      <div className="w-full font-mono h-full max-h-full flex flex-col min-h-0">
-        {/* Terminal Window */}
+      <div className="w-full h-full font-mono flex flex-col min-h-0 overflow-hidden">
+        {/* Terminal Window: ocupa todo el alto disponible, contenido hace scroll */}
         <div
-        className={`relative bg-black rounded-lg overflow-hidden shadow-2xl border border-zinc-700 flex flex-col min-h-0 ${isGlitching ? "animate-glitch" : ""}`}
+        className={`relative flex-1 bg-black rounded-lg overflow-hidden shadow-2xl border border-zinc-700 flex flex-col min-h-0 ${isGlitching ? "animate-glitch" : ""}`}
       >
         {/* Scanlines overlay */}
         <div
@@ -1021,8 +1019,8 @@ export default function RetroTerminal({ onClose }) {
           }}
         />
 
-        {/* Title Bar */}
-        <div className="flex items-center justify-between bg-[#2d2d2d] px-3 py-2 border-b border-zinc-700">
+        {/* Title Bar: altura fija */}
+        <div className="flex shrink-0 items-center justify-between bg-[#2d2d2d] px-3 py-2 border-b border-zinc-700">
           <div className="flex items-center gap-2">
             <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
               <rect x="2" y="3" width="20" height="18" rx="2" fill="transparent" stroke="#2ecc71" strokeWidth="1.5" />
@@ -1047,11 +1045,11 @@ export default function RetroTerminal({ onClose }) {
           </div>
         </div>
 
-        {/* Terminal Content */}
+        {/* Terminal Content: area con scroll, altura fija por flex */}
         <div
           ref={historyRef}
           onClick={() => inputRef.current?.focus()}
-          className="min-h-[200px] max-h-[42vh] sm:max-h-[46vh] md:max-h-[52vh] lg:max-h-[56vh] xl:max-h-[60vh] 2xl:h-[500px] 2xl:max-h-[500px] overflow-y-auto overflow-x-hidden p-4 text-[#2ecc71] text-sm leading-relaxed cursor-text relative flex-1"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 text-[#2ecc71] text-sm leading-relaxed cursor-text relative"
           style={{
             scrollbarWidth: "thin",
             scrollbarColor: "#2ecc71 transparent",

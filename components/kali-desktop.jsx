@@ -148,10 +148,10 @@ export default function KaliDesktop() {
         </button>
       </div>
 
-      {/* Terminal Window */}
+      {/* Terminal Window: altura fija para que no cambie con el contenido */}
       {terminalOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div className="relative w-full max-w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-2xl xl:max-w-2xl 2xl:max-w-3xl max-h-[78vh] sm:max-h-[82vh] md:max-h-[85vh] lg:max-h-[88vh] xl:max-h-[88vh] 2xl:max-h-[90vh] flex flex-col min-h-0">
+          <div className="relative w-full h-[50vh] sm:h-[54vh] md:h-[58vh] lg:h-[0vh] xl:h-[62vh] 2xl:h-[50vh] max-w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-2xl xl:max-w-2xl 2xl:max-w-3xl flex flex-col min-h-0 shrink-0">
             <RetroTerminal onClose={() => setTerminalOpen(false)} />
           </div>
         </div>
